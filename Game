@@ -1,4 +1,4 @@
-*MAIN 
+##MAIN 
 ```java
 package com.datorium.Datorium.API;
 
@@ -13,7 +13,7 @@ public class DatoriumApiApplication {
 	}
 }
 ```
-*COCTAILGAMECONTROLLER
+##COCTAILGAMECONTROLLER
 ```
 package com.datorium.Datorium.API.Controllers;
 
@@ -59,7 +59,7 @@ public class CocktailGameController {
     }
 }
 ```
-*DTO
+##DTO
 CoctailGuessDTO
 ```java
 package com.datorium.Datorium.API.DTOs;
@@ -78,7 +78,7 @@ public class CocktailGuessDTO {
     }
 }
 ```
-GameStatusDTO
+##GameStatusDTO
 ```java
 
 package com.datorium.Datorium.API.DTOs;
@@ -113,7 +113,7 @@ public class GameStatusDTO {
     }
 }
 ```
-*REPO
+##REPO
 ```java
 package com.datorium.Datorium.API.Repo;
 
@@ -135,7 +135,7 @@ public class CocktailGameRepo {
     }
 }
 ```
-*Service
+##Service
 ```java
 package com.datorium.Datorium.API.Services;
 
