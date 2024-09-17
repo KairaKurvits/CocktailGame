@@ -1,0 +1,214 @@
+*MAIN 
+```java
+package com.datorium.Datorium.API;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+
+public class DatoriumApiApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(DatoriumApiApplication.class, args);
+	}
+}
+```
+*COCTAILGAMECONTROLLER
+```
+package com.datorium.Datorium.API.Controllers;
+
+import com.datorium.Datorium.API.DTOs.CocktailGuessDTO;
+import com.datorium.Datorium.API.DTOs.GameStatusDTO;
+import com.datorium.Datorium.API.Services.CocktailGameService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+
+@RestController
+@RequestMapping("/cocktailgame")
+public class CocktailGameController {
+
+    private final CocktailGameService cocktailGameService;
+
+    public CocktailGameController() {
+        cocktailGameService = new CocktailGameService(); // Similar to your constructor
+    }
+
+    // Start a new game
+    @PostMapping("/start")
+    public GameStatusDTO startGame() {
+        return cocktailGameService.startGame();
+    }
+
+    // Make a guess
+    @PostMapping("/guess")
+    public GameStatusDTO makeGuess(@RequestBody CocktailGuessDTO cocktailGuessDTO) {
+        return cocktailGameService.makeGuess(cocktailGuessDTO);
+    }
+
+    // Get the current game status
+    @GetMapping("/status")
+    public ArrayList<GameStatusDTO> getStatus() {
+        return cocktailGameService.getCurrentStatus();
+    }
+
+    // End the game or reset
+    @PostMapping("/reset")
+    public GameStatusDTO resetGame() {
+        return cocktailGameService.resetGame();
+    }
+}
+```
+*DTO
+CoctailGuessDTO
+```java
+package com.datorium.Datorium.API.DTOs;
+
+
+
+public class CocktailGuessDTO {
+    private String guess;
+
+    public String getGuess() {
+        return guess;
+    }
+
+    public void setGuess(String guess) {
+        this.guess = guess;
+    }
+}
+```
+GameStatusDTO
+```java
+
+package com.datorium.Datorium.API.DTOs;
+
+public class GameStatusDTO {
+    private String hiddenCocktailName;
+    private int attemptsLeft;
+    private boolean gameOver;
+
+    public String getHiddenCocktailName() {
+        return hiddenCocktailName;
+    }
+
+    public void setHiddenCocktailName(String hiddenCocktailName) {
+        this.hiddenCocktailName = hiddenCocktailName;
+    }
+
+    public int getAttemptsLeft() {
+        return attemptsLeft;
+    }
+
+    public void setAttemptsLeft(int attemptsLeft) {
+        this.attemptsLeft = attemptsLeft;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+}
+```
+*REPO
+```java
+package com.datorium.Datorium.API.Repo;
+
+import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Repository
+public class CocktailGameRepo {
+    private Map<String, Integer> highScores = new HashMap<>();
+
+    public int getHighScore(String userName) {
+        return highScores.getOrDefault(userName, 0);
+    }
+
+    public void setHighScore(String userName, int score) {
+        highScores.put(userName, score);
+    }
+}
+```
+*Service
+```java
+package com.datorium.Datorium.API.Services;
+
+
+import com.datorium.Datorium.API.DTOs.CocktailGuessDTO;
+import com.datorium.Datorium.API.DTOs.GameStatusDTO;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
+@Service
+public class CocktailGameService {
+
+    private int attemptsLeft;
+    private String cocktailName;
+    private String hiddenCocktailName;
+
+    public CocktailGameService() {
+        attemptsLeft = 5;
+        hiddenCocktailName = "_ _ _ _ _";  // Just an example; could be dynamic
+    }
+
+    public GameStatusDTO startGame() {
+        // Logic to fetch a random cocktail and set hiddenCocktailName
+        // Assume cocktailName = "Margarita";
+        cocktailName = "Margarita";  // Example cocktail name
+        hiddenCocktailName = hideCocktailName(cocktailName);
+        attemptsLeft = 5;
+
+        return getCurrentGameStatus();
+    }
+
+    public GameStatusDTO makeGuess(CocktailGuessDTO guessDTO) {
+        if (guessDTO.getGuess().equalsIgnoreCase(cocktailName)) {
+            return startGame(); // Guess was correct, start a new game
+        } else {
+            attemptsLeft--;
+            if (attemptsLeft <= 0) {
+                return gameOverStatus();
+            }
+        }
+
+        return getCurrentGameStatus();
+    }
+
+    public ArrayList<GameStatusDTO> getCurrentStatus() {
+        ArrayList<GameStatusDTO> statusList = new ArrayList<>();
+        statusList.add(getCurrentGameStatus());
+        return statusList;
+    }
+
+    public GameStatusDTO resetGame() {
+        return startGame();
+    }
+
+    private String hideCocktailName(String name) {
+        return name.replaceAll("[A-Za-z]", "_");
+    }
+
+    private GameStatusDTO getCurrentGameStatus() {
+        GameStatusDTO status = new GameStatusDTO();
+        status.setHiddenCocktailName(hiddenCocktailName);
+        status.setAttemptsLeft(attemptsLeft);
+        status.setGameOver(false);
+        return status;
+    }
+
+    private GameStatusDTO gameOverStatus() {
+        GameStatusDTO status = new GameStatusDTO();
+        status.setHiddenCocktailName(cocktailName);
+        status.setAttemptsLeft(0);
+        status.setGameOver(true);
+        return status;
+    }
+}
+```
